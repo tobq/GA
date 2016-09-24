@@ -34,6 +34,7 @@ typedef struct  {
 } gen;
 
 int main() {
+	char[] sentence = "generated string";
 	int noMatch = 1;
 	gen top[2];
 	gen generated[] = {
@@ -53,7 +54,7 @@ int main() {
 			for (int j = 16; j--;) if (GEN->string[j]=="generated string"[j]) {
 				GEN->fitness++;
 			}
-			if (GEN->string == "generated string") {
+			if (GEN->fitness>15) {
 				noMatch = 0;
 				break;
 			}
@@ -71,7 +72,7 @@ int main() {
 			if (!(rand()%100)) generated[j].string[IND] = rand()%27 ? 'a'+(random() % 26):' ';
 		}
 	}
-	printf("\nMatched \"generated sentence\" in %f seconds\n",get_time()-start);
+	printf("\nMatched \"generated string\" in %f seconds\n",get_time()-start);
 	return 0;
 }
 
