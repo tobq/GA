@@ -68,7 +68,7 @@ int main() {
 			int IND = rand()%16;	
 			for (int z = 16; z--;) generated[j].string[z] = top[rand()%2].string[z];
 			printf("%s : %d\n",generated[j].string,generated[j].fitness);
-			if (!(rand()%2)) generated[j].string[IND] = rand()%27 ? 'a'+(random() % 26):' ';
+			if (!(rand()%100)) generated[j].string[IND] = rand()%27 ? 'a'+(random() % 26):' ';
 		}
 	}
 	printf("\nMatched \"generated sentence\" in %f seconds\n",get_time()-start);
