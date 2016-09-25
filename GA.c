@@ -1,78 +1,41 @@
-#ifdef WIN32
-
-#include <windows.h>
-double get_time()
-{
-    LARGE_INTEGER t, f;
-    QueryPerformanceCounter(&t);
-    QueryPerformanceFrequency(&f);
-    return (double)t.QuadPart/(double)f.QuadPart;
-}
-
-#else
-
-#include <sys/time.h>
-#include <sys/resource.h>
-
-double get_time()
-{
-    struct timeval t;
-    struct timezone tzp;
-    gettimeofday(&t, &tzp);
-    return t.tv_sec + t.tv_usec*1e-6;
-}
-
-#endif
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-
-typedef struct  {
-	char string[17];
-    int fitness;
-} gen;
-
-char randchar(){
-	return rand()%27 ? 'a'+(random() % 26):' ';
-}
-
-char *randstr(int len) {
-	char randStr[17]; 
-	while (len--) randStr[len] = randchar();
-	return (char*) &randStr;
-}
+#include "GA.h"
 
 int main() {
 	srand(get_time()*10000);
-	int noMatch = 1;
-	gen top[2];
-	gen generated[] = {
-		{ randstr(16), 0 },
-		{ randstr(16), 0 },
-		{ randstr(16), 0 },
-		{ randstr(16), 0 }
-	};
-	char *sentence = "generated string";
+	char *sentence;
+	int STRINGLENGTH=0;
+	printf("Type a sentence to match: ");
+	scanf("%s",sentence);
+	for(;sentence[STRINGLENGTH]!='\0'; ++STRINGLENGTH) sentence[STRINGLENGTH] = tolower(sentence[STRINGLENGTH]);
+	gen parents[PARENTS];
+	gen children[CHILDREN];
+	for(int x = CHILDREN; x--;) {
+		strcpy(children[x].string,randstr(STRINGLENGTH));
+		children[x].fitness = 0;
+	}
 	double start = get_time();
+	int noMatch = 1;
+
 	while (noMatch) {
-		for (int i = 4; i--;) {
-			gen *GEN = &generated[i];
+		for (int i = CHILDREN; i--;) {
+			gen *GEN = &children[i];
 			GEN->fitness=0;
-			for (int j = 16; j--;) if (GEN->string[j]==sentence[j]) GEN->fitness++;
-			for (int x=0; x < 16; ++x) printf("%c",generated[i].string[x]);
-			printf(" %d\n",GEN->fitness);
-			if (GEN->fitness>15) goto end;
+			for (int j = STRINGLENGTH; j--;) if (GEN->string[j]==sentence[j]) GEN->fitness++;
+			printf("%s | %d\n",GEN->string,GEN->fitness);
+			if (GEN->fitness>=STRINGLENGTH) goto end;
 		}
-		for (int j = 4; j--;) if (generated[j].fitness > top[1].fitness || !top[1].fitness) {
-			gen *GEN = &generated[j];
-			if (GEN->fitness > top[0].fitness) top[0] = *GEN;
-			else top[1] = *GEN;
+		for (int j = CHILDREN; j--;) if (children[j].fitness > parents[1].fitness || !parents[1].fitness) {
+			gen *GEN = &children[j];
+			if (GEN->fitness > parents[0].fitness) parents[0] = *GEN;
+			else parents[1] = *GEN;
 		}
-		for (int j = 4; j--;) for (int z = 16; z--;) {
-			gen *GEN = &generated[j];
-			if (!(rand()%50)) GEN->string[z] = randchar();
-			else GEN->string[z] = top[rand()%2].string[z];
+		for (int j = CHILDREN; j--;) for (int z = STRINGLENGTH; z--;) {
+			gen *GEN = &children[j];
+			if (!(rand()%(100*STRINGLENGTH/MUTATIONRATE))) GEN->string[z] = randchar();
+			else GEN->string[z] = parents[rand()%2].string[z];
 		}
 	}
 	end:
