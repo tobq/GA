@@ -5,37 +5,36 @@
 
 int main() {
 	srand(get_time()*10000);
-	char *sentence;
+	char sentence[256];
 	int STRINGLENGTH=0;
 	printf("Type a sentence to match: ");
 	scanf("%s",sentence);
-	for(;sentence[STRINGLENGTH]!='\0'; ++STRINGLENGTH) sentence[STRINGLENGTH] = tolower(sentence[STRINGLENGTH]);
+	for(;sentence[STRINGLENGTH]!='\0'; ++STRINGLENGTH); sentence[STRINGLENGTH] = tolower(sentence[STRINGLENGTH]);
 	gen parents[PARENTS];
 	gen children[CHILDREN];
-	for(int x = CHILDREN; x--;) {
-		strcpy(children[x].string,randstr(STRINGLENGTH));
-		children[x].fitness = 0;
-	}
-	double start = get_time();
+	for(int x = CHILDREN; x--;) children[x].string = randstr(STRINGLENGTH);
+	for(int x = PARENTS; x--;) parents[x].fitness=-1;
 	int noMatch = 1;
-
+	double start = get_time();
 	while (noMatch) {
 		for (int i = CHILDREN; i--;) {
-			gen *GEN = &children[i];
-			GEN->fitness=0;
-			for (int j = STRINGLENGTH; j--;) if (GEN->string[j]==sentence[j]) GEN->fitness++;
-			printf("%s | %d\n",GEN->string,GEN->fitness);
-			if (GEN->fitness>=STRINGLENGTH) goto end;
+			gen *child = &children[i];
+			child->fitness=0;
+			for (int j = STRINGLENGTH; j--;) if (child->string[j]==sentence[j]) child->fitness++;
+			printf("%s | %d\%\n",child->string,child->fitness*100/STRINGLENGTH);
+			if (child->fitness>=STRINGLENGTH) goto end;
 		}
-		for (int j = CHILDREN; j--;) if (children[j].fitness > parents[1].fitness || !parents[1].fitness) {
-			gen *GEN = &children[j];
-			if (GEN->fitness > parents[0].fitness) parents[0] = *GEN;
-			else parents[1] = *GEN;
+		for (int j = CHILDREN; j--;) if (children[j].fitness > parents[1].fitness) {
+			gen *child = &children[j];
+			if (child->fitness > parents[0].fitness) parents[0] = *child;
+			else parents[1] = *child;
 		}
+		printf("\n  P1: %s | %d\%\n",parents[0].string,parents[0].fitness*100/STRINGLENGTH);
+		printf("  P2: %s | %d\%\n\n",parents[1].string,parents[1].fitness*100/STRINGLENGTH);
 		for (int j = CHILDREN; j--;) for (int z = STRINGLENGTH; z--;) {
-			gen *GEN = &children[j];
-			if (!(rand()%(100*STRINGLENGTH/MUTATIONRATE))) GEN->string[z] = randchar();
-			else GEN->string[z] = parents[rand()%2].string[z];
+			gen *child = &children[j];
+			if (!(rand()%(6*STRINGLENGTH/MUTATIONRATE))) child->string[z] = randchar();
+			else child->string[z] = parents[rand()%PARENTS].string[z];
 		}
 	}
 	end:

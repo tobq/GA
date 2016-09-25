@@ -23,7 +23,7 @@ double get_time()
 }
 
 typedef struct  {
-	char string[17];
+	char *string;
     int fitness;
 } gen;
 
@@ -32,9 +32,12 @@ char randchar(){
 }
 
 char *randstr(int len) {
-	char *randStr; 
-	while (len--) randStr[len] = randchar();
-	return randStr;
+	len = len<256?len:255;
+	char *randStr = (char*) malloc(len+1);
+	if (randStr) {
+		while (len--) randStr[len] = randchar();
+		return randStr;
+	}
 }
 #endif
 
